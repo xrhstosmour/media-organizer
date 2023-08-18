@@ -15,11 +15,13 @@ def move_without_overwrite(media_path: Path, new_media_path: Path) -> None:
     """
 
     # Check if the file exists at the target location.
-    counter = 1
+    counter: int = 1
+    original_stem: str = new_media_path.stem
     while new_media_path.exists():
         # Append a number to the end of the filename and increase the counter.
+        new_stem: str = original_stem + f"C{counter}"
         new_media_path = new_media_path.with_name(
-            new_media_path.stem + f"C{counter}" + new_media_path.suffix.lower()
+            new_stem + new_media_path.suffix.lower()
         )
         counter += 1
 
