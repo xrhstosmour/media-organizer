@@ -137,7 +137,7 @@ def format_location(location: str | None) -> str | None:
         location = location.replace(" ", "_")
 
         # Replace special characters with "".
-        location = remove_special_characters(input_string=location)
+        location = remove_special_characters(input_string=location, exclude="_")
 
         # Convert to lowercase.
         location = location.lower()
