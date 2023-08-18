@@ -217,4 +217,5 @@ def get_location_taken(
             format_location(location=country),
         )
     else:
+        # TODO: Check if there is a valid tool to get video location metadata.
         return None, None

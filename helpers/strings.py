@@ -40,3 +40,24 @@ def remove_words(input_string: str, words_to_remove: list) -> str:
     return " ".join(
         [word for word in input_string.split() if word not in words_to_remove]
     ).strip()
+
+
+def to_boolean(input_value: str | int | bool) -> bool:
+    """Convert string or integer to boolean.
+
+    Args:
+        input_value (str | int | bool): The input string to convert to boolean.
+    Returns:
+        bool: True or False.
+    """
+    if input_value is not None:
+        if isinstance(input_value, bool):
+            return input_value
+        elif str(input_value).lower() in ("true", "1", "t", "y", "yes"):
+            return True
+        elif str(input_value).lower() in ("false", "0", "f", "n", "no"):
+            return False
+        else:
+            return False
+    else:
+        return False

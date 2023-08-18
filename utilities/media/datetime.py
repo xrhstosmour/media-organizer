@@ -98,6 +98,7 @@ def get_datetime_taken(
     """
 
     # Extract the datetime if available.
+    # TODO: Check if there is a valid tool to get video datetime metadata.
     datetime_taken: datetime = (
         extract_metadata_datetime(metadata=metadata, media_path=media_path)
         if media_type is MediaType.IMAGE

@@ -2,6 +2,7 @@ from pathlib import Path
 
 import pytz
 
+from helpers.strings import to_boolean
 from utilities.organize import rename_and_organize_media_files
 
 
@@ -25,6 +26,12 @@ def main() -> None:
         or None
     )
 
+    # Default to "n" if nothing is entered.
+    location_searching: str = (
+        input("Would you like to enable location searching? (y/N): ").strip()
+        or "N"
+    )
+
     # Check if time zone is valid.
     if time_zone and time_zone not in pytz.all_timezones:
         print("Invalid time zone entered!")
@@ -37,9 +44,16 @@ def main() -> None:
         print("Exiting...")
         return
 
+    if location_searching.lower() not in ["y", "n"]:
+        print("Invalid input for location searching!")
+        print("Please enter 'y' or 'n'.")
+        print("Exiting...")
+        return
+
     # Start processing the files
     rename_and_organize_media_files(
         directory_path=directory_path,
+        location_searching=to_boolean(location_searching),
         naming_datetime_format=naming_datetime_format,
         time_zone=time_zone,
     )

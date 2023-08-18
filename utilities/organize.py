@@ -12,6 +12,7 @@ def rename_media_files(
     base_directory: Path,
     media_path: Path,
     media_type: MediaType,
+    location_searching: bool,
     naming_datetime_format: str = None,
     time_zone: str = None,
 ) -> None:
@@ -22,6 +23,8 @@ def rename_media_files(
             The base directory where the media files are stored.
         media_path (Path): The path to the media file.
         media_type (MediaType): The type of the media file.
+        location_searching (bool):
+            If True, the location will be used for organizing the media files.
         naming_datetime_format (str, optional):
             The format to use for converting. Defaults to None.
         time_zone (str, optional):
@@ -32,12 +35,15 @@ def rename_media_files(
         # Get the metadata.
         metadata: dict | None = None
         if media_type is MediaType.IMAGE:
-            with media_path.open("rb") as media_file:
-                metadata = exifread.process_file(media_file)
+            try:
+                with media_path.open("rb") as media_file:
+                    metadata = exifread.process_file(media_file)
+            except Exception as exception:
+                print(f"Error processing {media_path}: {exception}")
+                metadata = None
 
         # TODO: Check if media file has already been organized, via database.
 
-        # TODO: Check if there is a valid tool to get video datetime metadata.
         # Extract the formatted datetime the picture was taken.
         formatted_datetime: str = get_datetime_taken(
             metadata=metadata,
@@ -47,14 +53,21 @@ def rename_media_files(
             time_zone=time_zone,
         )
 
-        # TODO: Check if there is a valid tool to get video location metadata.
-        # Extract the formatted location the picture was taken.
-        (
-            formatted_city,
-            formatted_municipality,
-            formatted_region,
-            formatted_country,
-        ) = get_location_taken(metadata=metadata, media_type=media_type)
+        # Variable to store the formatted location the picture was taken.
+        formatted_city: str | None = None
+        formatted_municipality: str | None = None
+        formatted_region: str | None = None
+        formatted_country: str | None = None
+
+        # Check if location searching is enabled.
+        if location_searching:
+            # Extract the formatted location the picture was taken.
+            (
+                formatted_city,
+                formatted_municipality,
+                formatted_region,
+                formatted_country,
+            ) = get_location_taken(metadata=metadata, media_type=media_type)
 
         # Determine the new media file name and destination directory
         nea_media_file_name: str = (
@@ -102,6 +115,7 @@ def rename_media_files(
         if (
             potential_destination_directory != media_path.parent
             and should_be_moved
+            and location_searching
         ):
             # If not, update the destination.
             destination_directory = potential_destination_directory
@@ -124,6 +138,7 @@ def rename_media_files(
 
 def rename_and_organize_media_files(
     directory_path: str,
+    location_searching: bool,
     naming_datetime_format: str = None,
     time_zone: str = None,
 ) -> None:
@@ -132,6 +147,8 @@ def rename_and_organize_media_files(
     Args:
         directory_path (str):
             The path to the directory containing the media files.
+        location_searching (bool):
+            If True, the location will be used for organizing the media files.
         naming_datetime_format (str, optional):
             The format to use for converting. Defaults to None.
         time_zone (str, optional):
@@ -173,6 +190,7 @@ def rename_and_organize_media_files(
                 base_directory=directory,
                 media_path=media_path,
                 media_type=media_type,
+                location_searching=location_searching,
                 naming_datetime_format=naming_datetime_format,
                 time_zone=time_zone,
             )
