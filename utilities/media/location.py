@@ -1,12 +1,12 @@
-from unidecode import unidecode
 from exifread.classes import IfdTag
 from geopy.exc import GeocoderTimedOut
 from geopy.geocoders.nominatim import Nominatim
 from geopy.location import Location
+from unidecode import unidecode
 
 from enumerations.media_type import MediaType
 from helpers.degrees import convert_metadata_location_to_degrees
-from helpers.strings import remove_special_characters
+from helpers.strings import remove_special_characters, remove_words
 
 
 def extract_metadata_latitude_longitude(
@@ -99,20 +99,14 @@ def convert_metadata_latitude_longitude_to_location(
             approximate_location: str | None = None
 
             # Try different location types.
-            for location_type in ["town", "city", "village", "suburb"]:
+            # ? We could also use suburb and state but we will get too specific.
+            for location_type in ["village", "town", "city"]:
                 approximate_location = address.get(location_type, None)
                 if approximate_location:
                     break
 
             # Finally, return the approximate location and country.
-            return (
-                (
-                    unidecode(approximate_location)
-                    if approximate_location
-                    else None
-                ),
-                unidecode(approximate_country) if approximate_country else None,
-            )
+            return approximate_location, approximate_country
 
     # Otherwise, return None.
     return None, None
@@ -132,6 +126,12 @@ def format_location(location: str | None) -> str | None:
     if location:
         # Trim all leading and trailing whitespaces.
         location = location.strip()
+
+        # Convert to lowercase.
+        location = location.lower()
+
+        # Convert all letters to english.
+        location = unidecode(location)
 
         # Remove not needed words.
         location = remove_words(
@@ -154,10 +154,6 @@ def format_location(location: str | None) -> str | None:
 
         # Replace special characters with "".
         location = remove_special_characters(input_string=location, exclude="_")
-
-        # Convert to lowercase.
-        location = location.lower()
-
         # Finally, return the location.
         return location
     else:
