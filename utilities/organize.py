@@ -15,7 +15,7 @@ def rename_media_files(
     location_searching: bool,
     naming_datetime_format: str = None,
     time_zone: str = None,
-) -> None:
+) -> Path:
     """Rename the media file.
 
     Args:
@@ -29,6 +29,9 @@ def rename_media_files(
             The format to use for converting. Defaults to None.
         time_zone (str, optional):
             The time zone to use for converting. Defaults to None.
+
+    Returns:
+        Path: The new media file path.
     """
 
     try:
@@ -133,6 +136,9 @@ def rename_media_files(
             move_without_overwrite(
                 media_path=media_path, new_media_path=new_media_path
             )
+
+        # Finally return the new media path.
+        return new_media_path
     except Exception as exception:
         print(f"Error processing {media_path}: {exception}")
 
@@ -175,10 +181,18 @@ def rename_and_organize_media_files(
     # Initialize the directory path as a Path object.
     directory = Path(directory_path)
 
+    # Create a set to track processed files.
+    processed_files: set = set()
+
+    # TODO: Do not process the same media file twice after moving them.
     # Iterate through all media files in the directory and its subdirectories.
     for media_path in directory.rglob("*"):
         # Check if the media file has one of the media extensions.
         if media_path.suffix.lower() in image_extensions | video_extensions:
+            # Check if this file has already been processed.
+            if media_path.resolve() in processed_files:
+                continue
+
             # Get the media type.
             media_type: MediaType = (
                 MediaType.IMAGE
@@ -190,7 +204,7 @@ def rename_and_organize_media_files(
             print(f"Processing {media_path}...")
 
             # Rename the media file.
-            rename_media_files(
+            new_media_path: Path = rename_media_files(
                 base_directory=directory,
                 media_path=media_path,
                 media_type=media_type,
@@ -198,3 +212,6 @@ def rename_and_organize_media_files(
                 naming_datetime_format=naming_datetime_format,
                 time_zone=time_zone,
             )
+
+            # Add this path to the set of processed files.
+            processed_files.add(new_media_path.resolve())
