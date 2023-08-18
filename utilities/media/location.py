@@ -153,6 +153,8 @@ def format_location(location: str | None) -> str | None:
                 "of",
                 "municipality",
                 "state",
+                "region",
+                "regional",
                 "country",
             ],
         )
