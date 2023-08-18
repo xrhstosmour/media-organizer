@@ -168,8 +168,10 @@ def format_location(location: str | None) -> str | None:
             ],
         )
 
-        # Replace all whitespaces with "_".
+        # Replace all whitespaces, dashes and slashes with underscore.
         location = location.replace(" ", "_")
+        location = location.replace("-", "_")
+        location = location.replace("/", "_")
 
         # Replace special characters with "".
         location = remove_special_characters(input_string=location, exclude="_")

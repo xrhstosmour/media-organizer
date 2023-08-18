@@ -189,6 +189,7 @@ def rename_and_organize_media_files(
     for media_path in directory.rglob("*"):
         # Check if the media file has one of the media extensions.
         if media_path.suffix.lower() in image_extensions | video_extensions:
+            # TODO: Use a database to check for already processed files.
             # Check if this file has already been processed.
             if media_path.resolve() in processed_files:
                 continue
