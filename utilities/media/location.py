@@ -1,3 +1,5 @@
+from re import search
+
 from exifread.classes import IfdTag
 from geopy.exc import GeocoderTimedOut
 from geopy.geocoders.nominatim import Nominatim
@@ -101,42 +103,45 @@ def convert_metadata_latitude_longitude_to_location(
             municipality: str | None = None
             city: str | None = None
 
+            # Pattern to check if the string contains special characters.
+            # Via this pattern, we will check if the string contains special.
+            pattern: str = r"[^\w\s]"
+
             # Try different fields for city in corresponding order.
             for location_type in [
                 "quarter",
+                "amenity",
+                "leisure",
                 "village",
                 "town",
-                "city",
                 "city_district",
+                "city",
                 "suburb",
             ]:
                 city = address.get(location_type, None)
-                if city:
+                if city and search(pattern, city):
+                    continue
+                elif city:
                     break
 
-            # Initialize a variable to store the shortest municipality.
-            shortest_municipality: str | None = None
-
-            # Get the shortest of the fields.
-            for location_type in ["municipal", "municipality"]:
+            # Try different fields for municipality in corresponding order.
+            for location_type in ["county", "municipal", "municipality"]:
                 municipality = address.get(location_type, None)
-                if municipality:
-                    # If this is the first municipality found or
-                    # it's shorter than the current shortest,
-                    # update the shortest.
-                    if shortest_municipality is None or len(municipality) < len(
-                        shortest_municipality
-                    ):
-                        shortest_municipality = municipality
+                if municipality and search(pattern, municipality):
+                    continue
+                elif municipality:
+                    break
 
             # Try different fields for region in corresponding order.
-            for location_type in ["state_district", "state", "county"]:
+            for location_type in ["state_district", "state"]:
                 region = address.get(location_type, None)
-                if region:
+                if region and search(pattern, region):
+                    continue
+                elif region:
                     break
 
             # Finally, return the city, municipality, region and country.
-            return city, shortest_municipality, region, country
+            return city, municipality, region, country
 
     # Otherwise, return None.
     return None, None, None, None
