@@ -1,3 +1,4 @@
+from unidecode import unidecode
 from exifread.classes import IfdTag
 from geopy.exc import GeocoderTimedOut
 from geopy.geocoders.nominatim import Nominatim
@@ -61,63 +62,60 @@ def convert_metadata_latitude_longitude_to_location(
         retries (int, optional): The retried attempts counter. Defaults to 0.
 
     Returns:
-        tuple[str | None, str | None]: The city and country.
+        tuple[str | None, str | None]: The approximate location and country.
     """
 
-    # Proceed if latitude and longitude are available, otherwise return None.
-    if latitude and longitude:
-        # Initialize the geolocator.
-        geo_locator: Nominatim = Nominatim(
-            user_agent="geoapiExercises", timeout=10
-        )
+    # Proceed if the latitude and longitude are valid, otherwise return None.
+    if latitude is None or longitude is None:
+        return None, None
 
+    # Initialize the geolocator.
+    geo_locator: Nominatim = Nominatim(user_agent="geoapiExercises", timeout=10)
+    try:
         # Get the location from the coordinates.
         location: Location = geo_locator.reverse(
             (latitude, longitude), language="en"
         )
-
-        try:
-            # Get the location from the coordinates.
-            location: Location = geo_locator.reverse(
-                (latitude, longitude), language="en"
-            )
-        except GeocoderTimedOut:
-            # Recursive retry up to 3 times.
-            if retries < 3:
-                # Increment retry counter before calling.
-                return convert_metadata_latitude_longitude_to_location(
-                    latitude=latitude, longitude=longitude, retries=retries + 1
-                )
-            else:
-                # Return None if the location cannot be retrieved.
-                return None, None
-
-        # Proceed if the location is available, otherwise return None.
-        if location:
-            # In some case city is not valid and we need to use other fields.
-            approximate_location: str = dict(location.raw["address"]).get(
-                "town", None
-            )
-            if not approximate_location:
-                approximate_location = dict(location.raw["address"]).get(
-                    "city", None
-                )
-            if not approximate_location:
-                approximate_location = dict(location.raw["address"]).get(
-                    "village", None
-                )
-            if not approximate_location:
-                approximate_location = dict(location.raw["address"]).get(
-                    "suburb", None
-                )
-            return (
-                approximate_location,
-                location.raw["address"]["country"],
+    except GeocoderTimedOut:
+        # Recursive retry up to 3 times.
+        if retries < 3:
+            return convert_metadata_latitude_longitude_to_location(
+                latitude=latitude, longitude=longitude, retries=retries + 1
             )
         else:
             return None, None
-    else:
-        return None, None
+
+    # Proceed if the location is available, otherwise return None.
+    if location:
+        # Keep the address metadata.
+        address: dict = location.raw["address"]
+
+        # Proceed if the address is available, otherwise return None.
+        if address:
+            # Keep the approximate country.
+            approximate_country: str = address.get("country", None)
+
+            # Initialize the approximate location.
+            approximate_location: str | None = None
+
+            # Try different location types.
+            for location_type in ["town", "city", "village", "suburb"]:
+                approximate_location = address.get(location_type, None)
+                if approximate_location:
+                    break
+
+            # Finally, return the approximate location and country.
+            return (
+                (
+                    unidecode(approximate_location)
+                    if approximate_location
+                    else None
+                ),
+                unidecode(approximate_country) if approximate_country else None,
+            )
+
+    # Otherwise, return None.
+    return None, None
 
 
 def format_location(location: str | None) -> str | None:
@@ -153,7 +151,8 @@ def format_location(location: str | None) -> str | None:
 def get_location_taken(
     metadata: dict, media_type: MediaType
 ) -> tuple[str | None, str | None]:
-    """Get the location the picture was taken in the format city_country.
+    """Get the location the picture was taken.
+    We will return the approximate location and the country.
 
     Args:
         metadata (dict): The media file metadata.
@@ -161,7 +160,7 @@ def get_location_taken(
 
     Returns:
         tuple[str | None, str | None]:
-            The city and the country the picture was taken.
+            The approximate location and the country the picture was taken.
     """
 
     # Proceed if the media type is image, otherwise return None.
@@ -172,11 +171,15 @@ def get_location_taken(
         )
 
         # Convert the latitude and longitude to a location if available.
-        city, country = convert_metadata_latitude_longitude_to_location(
-            latitude=latitude, longitude=longitude
+        approximate_location, country = (
+            convert_metadata_latitude_longitude_to_location(
+                latitude=latitude, longitude=longitude
+            )
         )
 
-        # Finally, return the formatted city and country.
-        return format_location(location=city), format_location(location=country)
+        # Finally, return the formatted approximate location and country.
+        return format_location(location=approximate_location), format_location(
+            location=country
+        )
     else:
         return None, None
