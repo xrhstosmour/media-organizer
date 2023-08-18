@@ -186,6 +186,9 @@ def rename_and_organize_media_files(
                 else MediaType.VIDEO
             )
 
+            # Print the media file we are processing.
+            print(f"Processing {media_path}...")
+
             # Rename the media file.
             rename_media_files(
                 base_directory=directory,
