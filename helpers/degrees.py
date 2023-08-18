@@ -6,7 +6,8 @@ def convert_metadata_location_to_degrees(metadata_location: IfdTag) -> float:
     """Convert the metadata GPS coordinates to degrees.
 
     Args:
-        metadata_location (IfdTag): The metadata location, either latitude or longitude.
+        metadata_location (IfdTag):
+            The metadata location, either latitude or longitude.
 
     Returns:
         float: The decimal degrees.

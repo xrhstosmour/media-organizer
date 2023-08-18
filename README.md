@@ -4,7 +4,7 @@ Media Organizer is a tool designed to rename and categorize your media files bas
 
 When you initiate the program, you will be prompted to provide:
 
-1. The path to the folder containing the media files you want to organize.
+1. The path to the folder containing the media files you want to organize. This folder can contain sub folders, which will be searched recursively.
 2. The desired datetime naming format for the newly named media files.
 3. The specific time zone to apply for datetime conversions.
 
@@ -17,7 +17,7 @@ If the media file is an image, the following actions will be taken:
 * **Renaming**: The image will be renamed to the datetime it was taken, using the EXIF metadata.
   * If the metadata is not available, it will be renamed using the oldest datetime from the creation, modification, or access time.
 
-* **Organization**: The image will be moved to corresponding folders, named after the country and the approximate location, as identified from the GPS EXIF metadata.
+* **Organization**: The image will be moved to corresponding folders, named after the country, the region and the city, as identified from the GPS EXIF metadata.
   * If this metadata is unavailable, the file will simply be renamed without additional categorization.
 
 ---
