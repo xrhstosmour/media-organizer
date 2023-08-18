@@ -99,8 +99,15 @@ def convert_metadata_latitude_longitude_to_location(
             approximate_location: str | None = None
 
             # Try different location types.
-            # ? We could also use suburb and state but we will get too specific.
-            for location_type in ["village", "town", "city"]:
+            for location_type in [
+                "village",
+                "town",
+                "city",
+                "suburb",
+                "municipal",
+                "municipality",
+                "state",
+            ]:
                 approximate_location = address.get(location_type, None)
                 if approximate_location:
                     break
@@ -137,15 +144,16 @@ def format_location(location: str | None) -> str | None:
         location = remove_words(
             location,
             [
+                "village",
+                "town",
+                "city",
+                "suburb",
                 "municipal",
                 "unit",
                 "of",
-                "village",
-                "town",
-                "suburb",
-                "city",
-                "country",
+                "municipality",
                 "state",
+                "country",
             ],
         )
 
