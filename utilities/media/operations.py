@@ -25,3 +25,24 @@ def move_without_overwrite(media_path: Path, new_media_path: Path) -> None:
 
     # Move the file to the new (and possibly modified) path.
     shutil.move(str(media_path), new_media_path)
+
+
+def delete_empty_directories(directory_path: Path) -> None:
+    """Deletes empty directories recursively.
+
+    Args:
+        directory_path (Path): The directory path.
+    """
+
+    # Flag to indicate if a directory was deleted.
+    deleted = True
+
+    # Repeat until no more empty directories are found.
+    while deleted:
+        deleted = False
+        # Iterate through subdirectories, from the deepest to the shallowest.
+        for path in reversed(list(directory_path.rglob("*"))):
+            if path.is_dir() and not any(path.iterdir()):
+                print(f"Deleting empty directory {path}...")
+                path.rmdir()
+                deleted = True

@@ -216,3 +216,6 @@ def rename_and_organize_media_files(
 
             # Add this path to the set of processed files.
             processed_files.add(new_media_path.resolve())
+
+    # Delete empty folders recursively.
+    delete_empty_directories(directory_path=directory)
