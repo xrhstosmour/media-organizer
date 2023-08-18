@@ -25,3 +25,18 @@ def remove_special_characters(
         return re.sub(pattern, "", input_string)
     else:
         return None
+
+
+def remove_words(input_string: str, words_to_remove: list) -> str:
+    """Removes the specified words from the given string.
+
+    Args:
+        input_string (str): The string from which words are to be removed.
+        words_to_remove (str): A list of the words to remove from the string.
+
+    Returns:
+        str: The modified string with the specified words removed.
+    """
+    return " ".join(
+        [word for word in input_string.split() if word not in words_to_remove]
+    ).strip()

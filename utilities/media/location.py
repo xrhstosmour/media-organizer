@@ -133,6 +133,22 @@ def format_location(location: str | None) -> str | None:
         # Trim all leading and trailing whitespaces.
         location = location.strip()
 
+        # Remove not needed words.
+        location = remove_words(
+            location,
+            [
+                "municipal",
+                "unit",
+                "of",
+                "village",
+                "town",
+                "suburb",
+                "city",
+                "country",
+                "state",
+            ],
+        )
+
         # Replace all whitespaces with "_".
         location = location.replace(" ", "_")
 
