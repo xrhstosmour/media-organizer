@@ -62,12 +62,13 @@ def convert_metadata_latitude_longitude_to_location(
         retries (int, optional): The retried attempts counter. Defaults to 0.
 
     Returns:
-        tuple[str | None, str | None]: The location and country.
+        tuple[str | None, str | None, str | None, str | None]:
+            The city, municipality, region and country.
     """
 
     # Proceed if the latitude and longitude are valid, otherwise return None.
     if latitude is None or longitude is None:
-        return None, None
+        return None, None, None, None
 
     # Initialize the geolocator.
     geo_locator: Nominatim = Nominatim(user_agent="geoapiExercises", timeout=10)
@@ -83,7 +84,7 @@ def convert_metadata_latitude_longitude_to_location(
                 latitude=latitude, longitude=longitude, retries=retries + 1
             )
         else:
-            return None, None
+            return None, None, None, None
 
     # Proceed if the location is available, otherwise return None.
     if location:
@@ -95,28 +96,34 @@ def convert_metadata_latitude_longitude_to_location(
             # Keep the approximate country.
             country: str = address.get("country", None)
 
-            # Initialize the location.
-            location: str | None = None
+            # Initialize the region, the municipality and the city.
+            region: str | None = None
+            municipality: str | None = None
+            city: str | None = None
 
-            # Try different location types.
-            for location_type in [
-                "village",
-                "town",
-                "city",
-                "suburb",
-                "municipal",
-                "municipality",
-                "state",
-            ]:
-                location = address.get(location_type, None)
-                if location:
+            # Try different fields for city in corresponding order.
+            for location_type in ["village", "town", "city"]:
+                city = address.get(location_type, None)
+                if city:
                     break
 
-            # Finally, return the location and country.
-            return location, country
+            # Try different fields for municipality in corresponding order.
+            for location_type in ["suburb", "municipal", "municipality"]:
+                municipality = address.get(location_type, None)
+                if municipality:
+                    break
+
+            # Try different fields for region in corresponding order.
+            for location_type in ["state", "state_district", "county"]:
+                region = address.get(location_type, None)
+                if region:
+                    break
+
+            # Finally, return the city, municipality, region and country.
+            return city, municipality, region, country
 
     # Otherwise, return None.
-    return None, None
+    return None, None, None, None
 
 
 def format_location(location: str | None) -> str | None:
@@ -152,7 +159,9 @@ def format_location(location: str | None) -> str | None:
                 "unit",
                 "of",
                 "municipality",
+                "country",
                 "state",
+                "state_district",
                 "region",
                 "regional",
                 "country",
@@ -181,8 +190,9 @@ def get_location_taken(
         media_type (MediaType): The type of the media file.
 
     Returns:
-        tuple[str | None, str | None]:
-            The location and the country the picture was taken.
+        tuple[str | None, str | None, str | None]:
+            The city, the municipality, the region and the country
+            the picture was taken.
     """
 
     # Proceed if the media type is image, otherwise return None.
@@ -193,13 +203,18 @@ def get_location_taken(
         )
 
         # Convert the latitude and longitude to a location if available.
-        location, country = convert_metadata_latitude_longitude_to_location(
-            latitude=latitude, longitude=longitude
+        city, municipality, region, country = (
+            convert_metadata_latitude_longitude_to_location(
+                latitude=latitude, longitude=longitude
+            )
         )
 
-        # Finally, return the formatted_location and country.
-        return format_location(location=location), format_location(
-            location=country
+        # Finally, return the formatted city, municipality, region and country.
+        return (
+            format_location(location=city),
+            format_location(location=municipality),
+            format_location(location=region),
+            format_location(location=country),
         )
     else:
         return None, None

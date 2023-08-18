@@ -35,8 +35,7 @@ def rename_media_files(
             with media_path.open("rb") as media_file:
                 metadata = exifread.process_file(media_file)
 
-        # TODO: Check if the media file has already been organized,
-        # TODO: without using the metadata, and corrupt the image.
+        # TODO: Check if media file has already been organized, via database.
 
         # TODO: Check if there is a valid tool to get video datetime metadata.
         # Extract the formatted datetime the picture was taken.
@@ -50,9 +49,12 @@ def rename_media_files(
 
         # TODO: Check if there is a valid tool to get video location metadata.
         # Extract the formatted location the picture was taken.
-        formatted_location, formatted_country = get_location_taken(
-            metadata=metadata, media_type=media_type
-        )
+        (
+            formatted_city,
+            formatted_municipality,
+            formatted_region,
+            formatted_country,
+        ) = get_location_taken(metadata=metadata, media_type=media_type)
 
         # Determine the new media file name and destination directory
         nea_media_file_name: str = (
@@ -60,23 +62,47 @@ def rename_media_files(
         )
         destination_directory: Path = media_path.parent
 
-        # Create a potential destination path based on the country
-        # and location.
+        # Create a potential destination path based on the country, region
+        # and city.
         potential_destination_directory: Path = base_directory
+
+        # Flag to keep track if the media file should be moved,
+        # according to location metadata.
+        should_be_moved: bool = False
+
         # If the country is valid, then add it to the potential destination.
         if formatted_country:
+            should_be_moved = True
             potential_destination_directory = (
                 potential_destination_directory / formatted_country
             )
-            # If the location is valid, add it
-            # to the potential destination.
-            if formatted_location:
-                potential_destination_directory = (
-                    potential_destination_directory / formatted_location
-                )
 
-        # Check if the media file is already in the desired location.
-        if potential_destination_directory != media_path.parent:
+        # If the region is valid, add it to the potential destination.
+        if formatted_region:
+            should_be_moved = True
+            potential_destination_directory = (
+                potential_destination_directory / formatted_region
+            )
+
+        # If the municipality is valid, add it to the potential destination.
+        if formatted_municipality:
+            should_be_moved = True
+            potential_destination_directory = (
+                potential_destination_directory / formatted_municipality
+            )
+
+        # If the city is valid, add it to the potential destination.
+        if formatted_city:
+            should_be_moved = True
+            potential_destination_directory = (
+                potential_destination_directory / formatted_city
+            )
+
+        # Check if the media file should be moved to non existing destination.
+        if (
+            potential_destination_directory != media_path.parent
+            and should_be_moved
+        ):
             # If not, update the destination.
             destination_directory = potential_destination_directory
 
@@ -85,7 +111,6 @@ def rename_media_files(
             if not destination_directory.exists():
                 destination_directory.mkdir(parents=True, exist_ok=True)
 
-        # TODO: Do not move to other parent directory.
         # Construct the new media path.
         new_media_path: Path = destination_directory / nea_media_file_name
 
