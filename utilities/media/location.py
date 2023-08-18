@@ -62,7 +62,7 @@ def convert_metadata_latitude_longitude_to_location(
         retries (int, optional): The retried attempts counter. Defaults to 0.
 
     Returns:
-        tuple[str | None, str | None]: The approximate location and country.
+        tuple[str | None, str | None]: The location and country.
     """
 
     # Proceed if the latitude and longitude are valid, otherwise return None.
@@ -93,10 +93,10 @@ def convert_metadata_latitude_longitude_to_location(
         # Proceed if the address is available, otherwise return None.
         if address:
             # Keep the approximate country.
-            approximate_country: str = address.get("country", None)
+            country: str = address.get("country", None)
 
-            # Initialize the approximate location.
-            approximate_location: str | None = None
+            # Initialize the location.
+            location: str | None = None
 
             # Try different location types.
             for location_type in [
@@ -108,12 +108,12 @@ def convert_metadata_latitude_longitude_to_location(
                 "municipality",
                 "state",
             ]:
-                approximate_location = address.get(location_type, None)
-                if approximate_location:
+                location = address.get(location_type, None)
+                if location:
                     break
 
-            # Finally, return the approximate location and country.
-            return approximate_location, approximate_country
+            # Finally, return the location and country.
+            return location, country
 
     # Otherwise, return None.
     return None, None
@@ -172,7 +172,7 @@ def get_location_taken(
     metadata: dict, media_type: MediaType
 ) -> tuple[str | None, str | None]:
     """Get the location the picture was taken.
-    We will return the approximate location and the country.
+    We will return the location and the country.
 
     Args:
         metadata (dict): The media file metadata.
@@ -180,7 +180,7 @@ def get_location_taken(
 
     Returns:
         tuple[str | None, str | None]:
-            The approximate location and the country the picture was taken.
+            The location and the country the picture was taken.
     """
 
     # Proceed if the media type is image, otherwise return None.
@@ -191,14 +191,12 @@ def get_location_taken(
         )
 
         # Convert the latitude and longitude to a location if available.
-        approximate_location, country = (
-            convert_metadata_latitude_longitude_to_location(
-                latitude=latitude, longitude=longitude
-            )
+        location, country = convert_metadata_latitude_longitude_to_location(
+            latitude=latitude, longitude=longitude
         )
 
-        # Finally, return the formatted approximate location and country.
-        return format_location(location=approximate_location), format_location(
+        # Finally, return the formatted_location and country.
+        return format_location(location=location), format_location(
             location=country
         )
     else:

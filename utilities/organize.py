@@ -50,7 +50,7 @@ def rename_media_files(
 
         # TODO: Check if there is a valid tool to get video location metadata.
         # Extract the formatted location the picture was taken.
-        formatted_approximate_location, formatted_country = get_location_taken(
+        formatted_location, formatted_country = get_location_taken(
             metadata=metadata, media_type=media_type
         )
 
@@ -61,19 +61,18 @@ def rename_media_files(
         destination_directory: Path = media_path.parent
 
         # Create a potential destination path based on the country
-        # and approximate location.
+        # and location.
         potential_destination_directory: Path = base_directory
         # If the country is valid, then add it to the potential destination.
         if formatted_country:
             potential_destination_directory = (
                 potential_destination_directory / formatted_country
             )
-            # If the approximate location is valid, add it
+            # If the location is valid, add it
             # to the potential destination.
-            if formatted_approximate_location:
+            if formatted_location:
                 potential_destination_directory = (
-                    potential_destination_directory
-                    / formatted_approximate_location
+                    potential_destination_directory / formatted_location
                 )
 
         # Check if the media file is already in the desired location.
