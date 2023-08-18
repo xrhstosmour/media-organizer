@@ -1,4 +1,3 @@
-import shutil
 from pathlib import Path
 
 import exifread
@@ -6,6 +5,7 @@ import exifread
 from enumerations.media_type import MediaType
 from utilities.media.datetime import get_datetime_taken
 from utilities.media.location import get_location_taken
+from utilities.media.operations import move_without_overwrite
 
 
 def rename_media_files(
@@ -128,10 +128,11 @@ def rename_media_files(
         # Construct the new media path.
         new_media_path: Path = destination_directory / nea_media_file_name
 
-        # TODO: Handle duplicate media files via their datetime.
         # Move the media media file to the new path only if it's not there.
         if new_media_path != media_path:
-            shutil.move(media_path, new_media_path)
+            move_without_overwrite(
+                media_path=media_path, new_media_path=new_media_path
+            )
     except Exception as exception:
         print(f"Error processing {media_path}: {exception}")
 
