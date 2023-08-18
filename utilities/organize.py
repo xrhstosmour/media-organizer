@@ -5,7 +5,10 @@ import exifread
 from enumerations.media_type import MediaType
 from utilities.media.datetime import get_datetime_taken
 from utilities.media.location import get_location_taken
-from utilities.media.operations import move_without_overwrite
+from utilities.media.operations import (
+    delete_empty_directories,
+    move_without_overwrite,
+)
 
 
 def rename_media_files(
@@ -93,22 +96,28 @@ def rename_media_files(
                 potential_destination_directory / formatted_country
             )
 
-        # If the region is valid, add it to the potential destination.
-        if formatted_region:
+        # If the region is valid and different to country, add it to the
+        # potential destination.
+        if formatted_region and formatted_region != formatted_country:
             should_be_moved = True
             potential_destination_directory = (
                 potential_destination_directory / formatted_region
             )
 
-        # If the municipality is valid, add it to the potential destination.
-        if formatted_municipality:
+        # If the municipality is valid and different to region, add it to the
+        # potential destination.
+        if (
+            formatted_municipality
+            and formatted_municipality != formatted_region
+        ):
             should_be_moved = True
             potential_destination_directory = (
                 potential_destination_directory / formatted_municipality
             )
 
-        # If the city is valid, add it to the potential destination.
-        if formatted_city:
+        # If the city is valid and different to the municipality, add it to the
+        # potential destination.
+        if formatted_city and formatted_city != formatted_municipality:
             should_be_moved = True
             potential_destination_directory = (
                 potential_destination_directory / formatted_city
