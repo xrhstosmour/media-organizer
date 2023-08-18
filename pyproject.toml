@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "media-organizer"
+version = "0.0.1"
+description = "Rename and organize your media, using their metadata."
+authors = ["Christos Mourtogiannis <c.mourtogiannis@gmail.com>"]
+readme = "README.md"
+packages = [{ include = "media_organizer" }]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+exifread = "^3.0.0"
+geopy = "^2.3.0"
+pytz = "^2023.3"
+piexif = "^1.1.3"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
