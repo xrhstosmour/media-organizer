@@ -1,0 +1,10 @@
+{
+    "recommendations": [
+        "ms-python.black-formatter",
+        "dineug.vuerd-vscode",
+        "ms-python.vscode-pylance",
+        "ms-python.python",
+        "charliermarsh.ruff",
+        "SonarSource.sonarlint-vscode"
+    ]
+}
