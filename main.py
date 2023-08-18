@@ -34,20 +34,19 @@ def main() -> None:
 
     # Check if time zone is valid.
     if time_zone and time_zone not in pytz.all_timezones:
-        print("Invalid time zone entered!")
-        print("Exiting...")
+        print("Invalid time zone entered! Exiting...")
         return
 
     # Check if directory exists.
     if not Path(directory_path).is_dir():
-        print("Invalid directory path entered!")
-        print("Exiting...")
+        print("Invalid directory path entered! Exiting...")
         return
 
     if location_searching.lower() not in ["y", "n"]:
-        print("Invalid input for location searching!")
-        print("Please enter 'y' or 'n'.")
-        print("Exiting...")
+        print(
+            "Invalid input for location searching! Please enter 'y' or 'n'."
+            " Exiting..."
+        )
         return
 
     # Start processing the files
