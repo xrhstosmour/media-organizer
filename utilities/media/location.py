@@ -102,25 +102,41 @@ def convert_metadata_latitude_longitude_to_location(
             city: str | None = None
 
             # Try different fields for city in corresponding order.
-            for location_type in ["village", "town", "city"]:
+            for location_type in [
+                "quarter",
+                "village",
+                "town",
+                "city",
+                "city_district",
+                "suburb",
+            ]:
                 city = address.get(location_type, None)
                 if city:
                     break
 
-            # Try different fields for municipality in corresponding order.
-            for location_type in ["suburb", "municipal", "municipality"]:
+            # Initialize a variable to store the shortest municipality.
+            shortest_municipality: str | None = None
+
+            # Get the shortest of the fields.
+            for location_type in ["municipal", "municipality"]:
                 municipality = address.get(location_type, None)
                 if municipality:
-                    break
+                    # If this is the first municipality found or
+                    # it's shorter than the current shortest,
+                    # update the shortest.
+                    if shortest_municipality is None or len(municipality) < len(
+                        shortest_municipality
+                    ):
+                        shortest_municipality = municipality
 
             # Try different fields for region in corresponding order.
-            for location_type in ["state", "state_district", "county"]:
+            for location_type in ["state_district", "state", "county"]:
                 region = address.get(location_type, None)
                 if region:
                     break
 
             # Finally, return the city, municipality, region and country.
-            return city, municipality, region, country
+            return city, shortest_municipality, region, country
 
     # Otherwise, return None.
     return None, None, None, None
@@ -154,6 +170,7 @@ def format_location(location: str | None) -> str | None:
                 "village",
                 "town",
                 "city",
+                "community",
                 "suburb",
                 "municipal",
                 "unit",
