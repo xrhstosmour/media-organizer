@@ -72,7 +72,7 @@ def format_datetime(
     if naming_datetime_format:
         return datetime_taken.strftime(naming_datetime_format)
     else:
-        return datetime_taken.strftime("%d_%m_%YT%H_%M_%S")
+        return datetime_taken.strftime("%Y_%m_%d_T%H_%M_%S")
 
 
 def get_datetime_taken(

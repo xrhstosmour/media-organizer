@@ -21,7 +21,7 @@ def main() -> None:
     naming_datetime_format: str = (
         input(
             "Please enter the desired naming datetime format (e.g., %Y-%m-%d"
-            " %H:%M:%S) or leave empty for default (%d_%m_%YT%H_%M_%S): "
+            " %H:%M:%S) or leave empty for default (%Y_%m_%d_T%H_%M_%S): "
         ).strip()
         or None
     )
