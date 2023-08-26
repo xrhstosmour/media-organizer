@@ -108,7 +108,7 @@ def convert_metadata_latitude_longitude_to_location(
             pattern: str = r"[^\w\s]"
 
             # Try different fields for city in corresponding order.
-            for location_type in [
+            for city_location_type in [
                 "quarter",
                 "amenity",
                 "leisure",
@@ -118,23 +118,27 @@ def convert_metadata_latitude_longitude_to_location(
                 "city",
                 "suburb",
             ]:
-                city = address.get(location_type, None)
+                city = address.get(city_location_type, None)
                 if city and search(pattern, city):
                     continue
                 elif city:
                     break
 
             # Try different fields for municipality in corresponding order.
-            for location_type in ["county", "municipal", "municipality"]:
-                municipality = address.get(location_type, None)
+            for municipality_location_type in [
+                "county",
+                "municipal",
+                "municipality",
+            ]:
+                municipality = address.get(municipality_location_type, None)
                 if municipality and search(pattern, municipality):
                     continue
                 elif municipality:
                     break
 
             # Try different fields for region in corresponding order.
-            for location_type in ["state_district", "state"]:
-                region = address.get(location_type, None)
+            for region_location_type in ["state_district", "state", "region"]:
+                region = address.get(region_location_type, None)
                 if region and search(pattern, region):
                     continue
                 elif region:

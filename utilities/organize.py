@@ -104,6 +104,7 @@ def rename_media_files(
                 potential_destination_directory / formatted_region
             )
 
+        # TODO: Do not create folder if it's the same as formatted_country too.
         # If the municipality is valid and different to region, add it to the
         # potential destination.
         if (
